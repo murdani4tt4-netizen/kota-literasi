@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+/* ============================================================
+   Ekspedisi Literasi: Kota Informasi — global presentation
+   ============================================================ */
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #05080f;
+  color: #e8eefc;
+  font-family: "Segoe UI", Inter, system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  overflow: hidden;
+}
+
+/* Keep the 3D canvas crisp on high-DPI displays without blurring the UI */
+canvas {
+  display: block;
+  outline: none;
+}
+
+/* Gameplay areas should not be text-selectable while dragging the camera */
+.app-noselect,
+canvas {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Scrollbars: subtle, cinematic */
+*::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+*::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.55);
+}
+
+input[type="range"] {
+  height: 22px;
+}
+
+@media print {
+  body {
+    overflow: visible;
+    background: #fff;
+    color: #000;
+  }
+}
