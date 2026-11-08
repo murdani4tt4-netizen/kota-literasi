@@ -26,8 +26,8 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="pointer-events-auto flex min-h-screen w-full items-stretch justify-center gap-5 p-3 sm:p-6">
-      <div className="grid w-full max-w-[1500px] gap-5 xl:grid-cols-[380px_1fr]">
+    <div className="pointer-events-auto absolute inset-0 z-20 flex justify-center gap-5 overflow-y-auto overscroll-contain p-3 sm:p-6">
+      <div className="m-auto grid w-full max-w-[1500px] gap-5 xl:grid-cols-[380px_1fr]">
         {/* -------------------- left: identity & stats -------------------- */}
         <div className="space-y-4">
           <Panel className="p-6">

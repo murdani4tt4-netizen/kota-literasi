@@ -32,8 +32,8 @@ export default function Login() {
   };
 
   return (
-    <div className="pointer-events-auto flex min-h-screen w-full items-center justify-center p-4 sm:p-8">
-      <div className="grid w-full max-w-5xl gap-6 lg:grid-cols-[1.1fr_1fr]">
+    <div className="pointer-events-auto absolute inset-0 z-20 flex overflow-y-auto overscroll-contain p-4 sm:p-8">
+      <div className="m-auto grid w-full max-w-5xl gap-6 lg:grid-cols-[1.1fr_1fr]">
         {/* ---------------- title side ---------------- */}
         <Panel className="relative overflow-hidden p-8">
           <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-amber-400/20 blur-3xl" />

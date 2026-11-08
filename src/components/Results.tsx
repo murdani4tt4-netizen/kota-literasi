@@ -23,7 +23,7 @@ export default function Results({ onReplay, onReview }: { onReplay: () => void; 
   }, []);
 
   return (
-    <div className="pointer-events-auto relative min-h-screen w-full overflow-y-auto p-3 sm:p-6">
+    <div className="pointer-events-auto absolute inset-0 z-20 w-full overflow-y-auto overscroll-contain p-3 sm:p-6">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -left-32 top-10 h-72 w-72 rounded-full bg-amber-400/20 blur-3xl" />
         <div className="absolute -right-24 bottom-10 h-72 w-72 rounded-full bg-sky-500/20 blur-3xl" />
