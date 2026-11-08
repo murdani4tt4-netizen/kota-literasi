@@ -16,6 +16,7 @@ export default function HUD({ engine, onCutsceneSkip }: { engine: GameEngine | n
   const prompt = useGame((s) => s.panel);
   const cs = useGame((s) => s.cutscene);
   const carried = engine?.carriedElement ?? null;
+  const [missionOpen, setMissionOpen] = useState(() => (typeof window === "undefined" ? true : window.innerWidth >= 640));
   const [near, setNear] = useState<{ id: string; label: string; kind: string } | null>(null);
 
   const zone = ZONE_BY_ID[activeZone] ?? ZONES[0];
@@ -86,7 +87,7 @@ export default function HUD({ engine, onCutsceneSkip }: { engine: GameEngine | n
               <p className="truncate text-[11px] font-bold uppercase tracking-widest text-amber-200/90">
                 {zone.levelLabel} · {zone.name}
               </p>
-              <p className="truncate text-xs text-slate-300">
+              <p className="hidden truncate text-xs text-slate-300 sm:block">
                 {profile?.name} · {profile?.className}
               </p>
             </div>
@@ -116,11 +117,33 @@ export default function HUD({ engine, onCutsceneSkip }: { engine: GameEngine | n
       </div>
 
       {/* ------------------- mission side panel ------------------- */}
-      <div className="pointer-events-none absolute right-2 top-24 z-20 w-[240px] sm:right-3 sm:top-28 sm:w-[280px]">
-        <Panel className="pointer-events-auto p-3 sm:p-4" glow={zone.color}>
+      {!missionOpen && (
+        <button
+          onClick={() => setMissionOpen(true)}
+          className="pointer-events-auto absolute right-2 top-[104px] z-20 flex max-w-[62vw] items-center gap-2 rounded-xl border border-white/20 bg-[#0a1020]/85 px-3 py-2 text-left text-[11px] font-bold text-amber-100 backdrop-blur-xl sm:right-3 sm:top-28"
+        >
+          <span>📋 MISI {zone.index}/6</span>
+          <span className="truncate font-medium text-slate-300">{currentTask ? currentTask.title : "Selesai"}</span>
+          <span className="text-slate-400">▾</span>
+        </button>
+      )}
+      <div
+        className={cn(
+          "pointer-events-none absolute right-2 top-[104px] z-20 w-[min(280px,calc(100vw-1rem))] sm:right-3 sm:top-28 sm:w-[280px]",
+          !missionOpen && "hidden"
+        )}
+      >
+        <Panel className="pointer-events-auto max-h-[calc(100dvh-200px)] overflow-y-auto p-3 sm:max-h-[calc(100dvh-8rem)] sm:p-4" glow={zone.color}>
           <div className="flex items-center justify-between gap-2">
             <Tag color={zone.color}>MISI {zone.index}/6</Tag>
             <span className="text-[10px] text-slate-400">{progress.completedZones.includes(zone.id) ? "SELESAI" : "BERJALAN"}</span>
+            <button
+              onClick={() => setMissionOpen(false)}
+              aria-label="Ciutkan misi"
+              className="rounded-md border border-white/15 px-2 py-0.5 text-[11px] font-bold text-slate-300"
+            >
+              ▴
+            </button>
           </div>
           <p className="mt-2 text-sm font-bold leading-snug text-white">{zone.mission}</p>
           <div className="mt-3 space-y-1.5">
@@ -177,7 +200,7 @@ export default function HUD({ engine, onCutsceneSkip }: { engine: GameEngine | n
 
       {/* ------------------- interaction prompt ------------------- */}
       {near && !cs.active && !inPanel && (
-        <div className="pointer-events-none absolute bottom-36 left-1/2 z-20 -translate-x-1/2 sm:bottom-28">
+        <div className="pointer-events-none absolute bottom-44 left-1/2 z-20 -translate-x-1/2 sm:bottom-28">
           <div className="flex items-center gap-3 rounded-2xl border border-amber-300/40 bg-[#0a1020]/85 px-4 py-2.5 backdrop-blur-xl">
             <span className="grid h-9 w-9 place-items-center rounded-lg border border-amber-300/50 bg-amber-300/15 text-sm font-black text-amber-200">
               E
@@ -191,7 +214,7 @@ export default function HUD({ engine, onCutsceneSkip }: { engine: GameEngine | n
       <TouchControls engine={engine} hidden={cs.active || inPanel} />
 
       {/* ------------------- toasts ------------------- */}
-      <div className="pointer-events-none absolute bottom-4 right-3 z-40 flex w-[260px] flex-col gap-2">
+      <div className="pointer-events-none absolute inset-x-2 top-[104px] z-40 flex flex-col items-center gap-2 sm:inset-x-auto sm:bottom-4 sm:right-3 sm:top-auto sm:w-[260px] sm:items-stretch">
         {toasts.map((t) => (
           <div
             key={t.id}
@@ -218,7 +241,7 @@ export default function HUD({ engine, onCutsceneSkip }: { engine: GameEngine | n
 // ============================================================== minimap
 function Minimap({ engine }: { engine: GameEngine | null }) {
   const ref = useRef<HTMLCanvasElement>(null);
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(() => (typeof window === "undefined" ? true : window.innerWidth >= 640));
 
   useEffect(() => {
     if (!engine || !ref.current) return;
@@ -283,13 +306,13 @@ function Minimap({ engine }: { engine: GameEngine | null }) {
   }, [engine]);
 
   return (
-    <div className="absolute bottom-3 left-3 z-20">
+    <div className="absolute left-2 top-[104px] z-20 sm:bottom-3 sm:left-3 sm:top-auto">
       <div className="flex items-center gap-2">
         <canvas
           ref={ref}
           width={168}
           height={150}
-          className="rounded-xl border border-white/15 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.9)]"
+          className="h-[110px] w-[123px] rounded-xl border border-white/15 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.9)] sm:h-[150px] sm:w-[168px]"
           style={{ display: open ? "block" : "none" }}
         />
       </div>
@@ -297,7 +320,7 @@ function Minimap({ engine }: { engine: GameEngine | null }) {
         onClick={() => setOpen((o) => !o)}
         className="mt-1 rounded-lg border border-white/15 bg-[#0a1020]/80 px-2 py-1 text-[10px] font-bold text-slate-300"
       >
-        {open ? "SEMBUNYIKAN PETA" : "TAMPILKAN PETA"}
+        {open ? "✕ PETA" : "🗺 PETA"}
       </button>
     </div>
   );
@@ -316,7 +339,7 @@ function TouchControls({ engine, hidden }: { engine: GameEngine | null; hidden: 
     <>
       {/* joystick */}
       <div
-        className="absolute bottom-6 left-1/2 z-30 h-32 w-32 -translate-x-1/2 touch-none rounded-full border border-white/20 bg-[#0a1020]/45 backdrop-blur-md sm:left-auto sm:right-56 sm:translate-x-0"
+        className="absolute bottom-6 left-4 z-30 h-28 w-28 touch-none rounded-full sm:h-32 sm:w-32 border border-white/20 bg-[#0a1020]/45 backdrop-blur-md sm:left-auto sm:right-56"
         onPointerDown={(e) => {
           (e.target as HTMLElement).setPointerCapture(e.pointerId);
           handleJoy(e.clientX, e.clientY, e.currentTarget as HTMLElement);
@@ -343,7 +366,7 @@ function TouchControls({ engine, hidden }: { engine: GameEngine | null; hidden: 
         <button
           onClick={() => setRun((r) => !r)}
           className={cn(
-            "h-12 w-12 rounded-full border text-[11px] font-black backdrop-blur-md",
+            "h-11 w-11 rounded-full border text-[10px] font-black backdrop-blur-md sm:h-12 sm:w-12 sm:text-[11px]",
             run ? "border-amber-300/70 bg-amber-400/30 text-amber-100" : "border-white/25 bg-[#0a1020]/60 text-white/70"
           )}
         >
@@ -353,7 +376,7 @@ function TouchControls({ engine, hidden }: { engine: GameEngine | null; hidden: 
           onClick={() => {
             pressJump();
           }}
-          className="h-14 w-14 rounded-full border border-white/25 bg-[#0a1020]/60 text-[11px] font-black text-white/80 backdrop-blur-md"
+          className="h-12 w-12 rounded-full border border-white/25 bg-[#0a1020]/60 text-[9px] sm:h-14 sm:w-14 sm:text-[11px] font-black text-white/80 backdrop-blur-md"
         >
           LOMPAT
         </button>
@@ -362,7 +385,7 @@ function TouchControls({ engine, hidden }: { engine: GameEngine | null; hidden: 
             if (engine) engine.tryInteract();
             else pressInteract();
           }}
-          className="h-20 w-20 rounded-full border-2 border-amber-300/70 bg-amber-400/25 text-sm font-black text-amber-50 shadow-[0_0_40px_-8px_rgba(251,191,36,0.9)] backdrop-blur-md"
+          className="h-16 w-16 rounded-full border-2 border-amber-300/70 sm:h-20 sm:w-20 bg-amber-400/25 text-sm font-black text-amber-50 shadow-[0_0_40px_-8px_rgba(251,191,36,0.9)] backdrop-blur-md"
         >
           E
           <span className="block text-[9px] font-bold">INTERAKSI</span>
