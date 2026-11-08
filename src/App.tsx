@@ -373,7 +373,7 @@ export default function App() {
   };
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-[#05080f] font-sans text-white">
+    <div className="relative h-dvh w-screen overflow-hidden bg-[#05080f] font-sans text-white">
       <div ref={containerRef} className="absolute inset-0 h-full w-full" />
 
       {/* cinematic vignette + film grain (visual layer only) */}

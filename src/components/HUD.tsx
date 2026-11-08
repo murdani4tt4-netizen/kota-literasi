@@ -6,6 +6,28 @@ import { ZONES, ZONE_BY_ID } from "../game/content";
 import { Button, Panel, Progress, Tag } from "./ui";
 import { cn } from "../utils/cn";
 
+
+// Tata letak ringkas untuk HP (portrait maupun landscape).
+function useLayout() {
+  const get = () => {
+    const w = typeof window === "undefined" ? 1280 : window.innerWidth;
+    const hh = typeof window === "undefined" ? 800 : window.innerHeight;
+    const compact = !(w >= 640 && hh >= 481);
+    return { compact, landscape: compact && w > hh };
+  };
+  const [l, setL] = useState(get);
+  useEffect(() => {
+    const f = () => setL(get());
+    window.addEventListener("resize", f);
+    window.addEventListener("orientationchange", f);
+    return () => {
+      window.removeEventListener("resize", f);
+      window.removeEventListener("orientationchange", f);
+    };
+  }, []);
+  return l;
+}
+
 export default function HUD({ engine, onCutsceneSkip }: { engine: GameEngine | null; onCutsceneSkip: () => void }) {
   const profile = useGame((s) => s.profile);
   const progress = useGame((s) => s.progress);
@@ -16,7 +38,11 @@ export default function HUD({ engine, onCutsceneSkip }: { engine: GameEngine | n
   const prompt = useGame((s) => s.panel);
   const cs = useGame((s) => s.cutscene);
   const carried = engine?.carriedElement ?? null;
-  const [missionOpen, setMissionOpen] = useState(() => (typeof window === "undefined" ? true : window.innerWidth >= 640));
+  const layout = useLayout();
+  const [missionOpen, setMissionOpen] = useState(() => !layout.compact);
+  useEffect(() => {
+    document.documentElement.style.setProperty("--hud-top", layout.landscape ? "64px" : "104px");
+  }, [layout.landscape]);
   const [near, setNear] = useState<{ id: string; label: string; kind: string } | null>(null);
 
   const zone = ZONE_BY_ID[activeZone] ?? ZONES[0];
@@ -61,7 +87,7 @@ export default function HUD({ engine, onCutsceneSkip }: { engine: GameEngine | n
           <div className="absolute inset-x-0 bottom-0 h-[11vh] bg-black" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-transparent to-black/55" />
           <div className="absolute inset-x-0 bottom-[13vh] px-8 text-center">
-            <p className="mx-auto max-w-4xl text-lg font-bold text-white drop-shadow-[0_4px_18px_rgba(0,0,0,0.9)] sm:text-2xl">
+            <p className="mx-auto max-w-4xl text-lg font-bold text-white drop-shadow-[0_4px_18px_rgba(0,0,0,0.9)] dsk:text-2xl">
               {cs.subtitle}
             </p>
             <div className="mx-auto mt-3 h-1 w-64 overflow-hidden rounded-full bg-white/20">
@@ -79,27 +105,27 @@ export default function HUD({ engine, onCutsceneSkip }: { engine: GameEngine | n
       )}
 
       {/* ------------------- top bar ------------------- */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-30 p-2 sm:p-3">
-        <Panel className="pointer-events-auto flex flex-wrap items-center gap-x-4 gap-y-2 px-3 py-2 sm:px-4">
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-30 p-2 dsk:p-3">
+        <Panel className="pointer-events-auto flex flex-wrap items-center gap-x-4 gap-y-2 px-3 py-2 dsk:px-4">
           <div className="flex min-w-0 items-center gap-3">
             <span className="grid h-9 w-9 place-items-center rounded-lg bg-amber-400/20 text-lg">{zone.icon}</span>
             <div className="min-w-0">
               <p className="truncate text-[11px] font-bold uppercase tracking-widest text-amber-200/90">
                 {zone.levelLabel} · {zone.name}
               </p>
-              <p className="hidden truncate text-xs text-slate-300 sm:block">
+              <p className="hidden truncate text-xs text-slate-300 dsk:block">
                 {profile?.name} · {profile?.className}
               </p>
             </div>
           </div>
-          <div className="hidden h-8 w-px bg-white/10 sm:block" />
+          <div className="hidden h-8 w-px bg-white/10 dsk:block" />
           <div className="flex items-center gap-4 text-xs">
             <span className="font-black text-amber-300">⭐ {progress.score}</span>
             <span className="font-bold text-rose-200">★ {stars}</span>
-            <span className="hidden text-slate-300 sm:inline">🔮 {progress.orbs.length}/8</span>
+            <span className="hidden text-slate-300 dsk:inline">🔮 {progress.orbs.length}/8</span>
           </div>
           <div className="ml-auto flex items-center gap-2">
-            <div className="hidden w-36 md:block">
+            <div className="hidden w-36 dsk:block">
               <Progress value={pct} />
               <p className="mt-1 text-right text-[10px] text-slate-400">{pct}% tersaikan</p>
             </div>
@@ -120,7 +146,7 @@ export default function HUD({ engine, onCutsceneSkip }: { engine: GameEngine | n
       {!missionOpen && (
         <button
           onClick={() => setMissionOpen(true)}
-          className="pointer-events-auto absolute right-2 top-[104px] z-20 flex max-w-[62vw] items-center gap-2 rounded-xl border border-white/20 bg-[#0a1020]/85 px-3 py-2 text-left text-[11px] font-bold text-amber-100 backdrop-blur-xl sm:right-3 sm:top-28"
+          className="pointer-events-auto absolute right-2 top-[var(--hud-top)] z-20 flex max-w-[62vw] items-center gap-2 rounded-xl border border-white/20 bg-[#0a1020]/85 px-3 py-2 text-left text-[11px] font-bold text-amber-100 backdrop-blur-xl dsk:right-3 dsk:top-28"
         >
           <span>📋 MISI {zone.index}/6</span>
           <span className="truncate font-medium text-slate-300">{currentTask ? currentTask.title : "Selesai"}</span>
@@ -129,11 +155,11 @@ export default function HUD({ engine, onCutsceneSkip }: { engine: GameEngine | n
       )}
       <div
         className={cn(
-          "pointer-events-none absolute right-2 top-[104px] z-20 w-[min(280px,calc(100vw-1rem))] sm:right-3 sm:top-28 sm:w-[280px]",
+          "pointer-events-none absolute right-2 top-[var(--hud-top)] z-20 w-[min(280px,calc(100vw-1rem))] dsk:right-3 dsk:top-28 dsk:w-[280px]",
           !missionOpen && "hidden"
         )}
       >
-        <Panel className="pointer-events-auto max-h-[calc(100dvh-200px)] overflow-y-auto p-3 sm:max-h-[calc(100dvh-8rem)] sm:p-4" glow={zone.color}>
+        <Panel className={cn("pointer-events-auto overflow-y-auto p-3 dsk:max-h-[calc(100dvh-8rem)] dsk:p-4", layout.landscape ? "max-h-[calc(100dvh-var(--hud-top)-104px)]" : "max-h-[calc(100dvh-var(--hud-top)-16px)]")} glow={zone.color}>
           <div className="flex items-center justify-between gap-2">
             <Tag color={zone.color}>MISI {zone.index}/6</Tag>
             <span className="text-[10px] text-slate-400">{progress.completedZones.includes(zone.id) ? "SELESAI" : "BERJALAN"}</span>
@@ -191,7 +217,7 @@ export default function HUD({ engine, onCutsceneSkip }: { engine: GameEngine | n
 
       {/* ------------------- carried element indicator ------------------- */}
       {carried && (
-        <div className="pointer-events-none absolute left-1/2 top-24 z-20 -translate-x-1/2 sm:top-28">
+        <div className="pointer-events-none absolute left-1/2 top-24 z-20 -translate-x-1/2 dsk:top-28">
           <div className="rounded-full border border-emerald-300/40 bg-emerald-500/20 px-4 py-1.5 text-xs font-bold text-emerald-100 backdrop-blur">
             🎒 Membawa unsur poster — dekati slot lalu tekan E
           </div>
@@ -200,7 +226,7 @@ export default function HUD({ engine, onCutsceneSkip }: { engine: GameEngine | n
 
       {/* ------------------- interaction prompt ------------------- */}
       {near && !cs.active && !inPanel && (
-        <div className="pointer-events-none absolute bottom-44 left-1/2 z-20 -translate-x-1/2 sm:bottom-28">
+        <div style={layout.landscape ? { bottom: 16 } : undefined} className="pointer-events-none absolute bottom-44 left-1/2 z-20 -translate-x-1/2 dsk:!bottom-28">
           <div className="flex items-center gap-3 rounded-2xl border border-amber-300/40 bg-[#0a1020]/85 px-4 py-2.5 backdrop-blur-xl">
             <span className="grid h-9 w-9 place-items-center rounded-lg border border-amber-300/50 bg-amber-300/15 text-sm font-black text-amber-200">
               E
@@ -214,7 +240,7 @@ export default function HUD({ engine, onCutsceneSkip }: { engine: GameEngine | n
       <TouchControls engine={engine} hidden={cs.active || inPanel} />
 
       {/* ------------------- toasts ------------------- */}
-      <div className="pointer-events-none absolute inset-x-2 top-[104px] z-40 flex flex-col items-center gap-2 sm:inset-x-auto sm:bottom-4 sm:right-3 sm:top-auto sm:w-[260px] sm:items-stretch">
+      <div className="pointer-events-none absolute inset-x-2 top-[var(--hud-top)] z-40 flex flex-col items-center gap-2 dsk:inset-x-auto dsk:bottom-4 dsk:right-3 dsk:top-auto dsk:w-[260px] dsk:items-stretch">
         {toasts.map((t) => (
           <div
             key={t.id}
@@ -241,7 +267,8 @@ export default function HUD({ engine, onCutsceneSkip }: { engine: GameEngine | n
 // ============================================================== minimap
 function Minimap({ engine }: { engine: GameEngine | null }) {
   const ref = useRef<HTMLCanvasElement>(null);
-  const [open, setOpen] = useState(() => (typeof window === "undefined" ? true : window.innerWidth >= 640));
+  const { compact } = useLayout();
+  const [open, setOpen] = useState(() => !compact);
 
   useEffect(() => {
     if (!engine || !ref.current) return;
@@ -306,13 +333,13 @@ function Minimap({ engine }: { engine: GameEngine | null }) {
   }, [engine]);
 
   return (
-    <div className="absolute left-2 top-[104px] z-20 sm:bottom-3 sm:left-3 sm:top-auto">
+    <div className="absolute left-2 top-[var(--hud-top)] z-20 dsk:bottom-3 dsk:left-3 dsk:top-auto">
       <div className="flex items-center gap-2">
         <canvas
           ref={ref}
           width={168}
           height={150}
-          className="h-[110px] w-[123px] rounded-xl border border-white/15 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.9)] sm:h-[150px] sm:w-[168px]"
+          className="h-[110px] w-[123px] rounded-xl border border-white/15 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.9)] dsk:h-[150px] dsk:w-[168px]"
           style={{ display: open ? "block" : "none" }}
         />
       </div>
@@ -328,6 +355,7 @@ function Minimap({ engine }: { engine: GameEngine | null }) {
 
 // ============================================================== touch controls
 function TouchControls({ engine, hidden }: { engine: GameEngine | null; hidden: boolean }) {
+  const { landscape } = useLayout();
   const [run, setRun] = useState(false);
 
   useEffect(() => {
@@ -339,7 +367,7 @@ function TouchControls({ engine, hidden }: { engine: GameEngine | null; hidden: 
     <>
       {/* joystick */}
       <div
-        className="absolute bottom-6 left-4 z-30 h-28 w-28 touch-none rounded-full sm:h-32 sm:w-32 border border-white/20 bg-[#0a1020]/45 backdrop-blur-md sm:left-auto sm:right-56"
+        className="absolute bottom-4 left-4 z-30 h-28 w-28 touch-none dsk:bottom-6 rounded-full dsk:h-32 dsk:w-32 border border-white/20 bg-[#0a1020]/45 backdrop-blur-md dsk:left-auto dsk:right-56"
         onPointerDown={(e) => {
           (e.target as HTMLElement).setPointerCapture(e.pointerId);
           handleJoy(e.clientX, e.clientY, e.currentTarget as HTMLElement);
@@ -362,11 +390,11 @@ function TouchControls({ engine, hidden }: { engine: GameEngine | null; hidden: 
       </div>
 
       {/* action buttons */}
-      <div className="absolute bottom-6 right-4 z-30 flex flex-col items-end gap-2">
+      <div className={cn("absolute bottom-4 right-4 z-30 flex items-end gap-2 dsk:bottom-6", landscape ? "flex-row-reverse" : "flex-col")}>
         <button
           onClick={() => setRun((r) => !r)}
           className={cn(
-            "h-11 w-11 rounded-full border text-[10px] font-black backdrop-blur-md sm:h-12 sm:w-12 sm:text-[11px]",
+            "h-11 w-11 rounded-full border text-[10px] font-black backdrop-blur-md dsk:h-12 dsk:w-12 dsk:text-[11px]",
             run ? "border-amber-300/70 bg-amber-400/30 text-amber-100" : "border-white/25 bg-[#0a1020]/60 text-white/70"
           )}
         >
@@ -376,7 +404,7 @@ function TouchControls({ engine, hidden }: { engine: GameEngine | null; hidden: 
           onClick={() => {
             pressJump();
           }}
-          className="h-12 w-12 rounded-full border border-white/25 bg-[#0a1020]/60 text-[9px] sm:h-14 sm:w-14 sm:text-[11px] font-black text-white/80 backdrop-blur-md"
+          className="h-12 w-12 rounded-full border border-white/25 bg-[#0a1020]/60 text-[9px] dsk:h-14 dsk:w-14 dsk:text-[11px] font-black text-white/80 backdrop-blur-md"
         >
           LOMPAT
         </button>
@@ -385,7 +413,7 @@ function TouchControls({ engine, hidden }: { engine: GameEngine | null; hidden: 
             if (engine) engine.tryInteract();
             else pressInteract();
           }}
-          className="h-16 w-16 rounded-full border-2 border-amber-300/70 sm:h-20 sm:w-20 bg-amber-400/25 text-sm font-black text-amber-50 shadow-[0_0_40px_-8px_rgba(251,191,36,0.9)] backdrop-blur-md"
+          className="h-16 w-16 rounded-full border-2 border-amber-300/70 dsk:h-20 dsk:w-20 bg-amber-400/25 text-sm font-black text-amber-50 shadow-[0_0_40px_-8px_rgba(251,191,36,0.9)] backdrop-blur-md"
         >
           E
           <span className="block text-[9px] font-bold">INTERAKSI</span>

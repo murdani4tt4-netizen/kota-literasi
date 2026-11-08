@@ -46,7 +46,7 @@ export default function ChallengePanel({
   };
 
   return (
-    <div className="pointer-events-auto absolute inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[#04070f]/88 p-2 backdrop-blur-md sm:items-center sm:p-4">
+    <div className="pointer-events-auto absolute inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[#04070f]/88 p-2 backdrop-blur-md dsk:items-center sm:p-4">
       <Panel className="w-full max-w-5xl overflow-hidden" glow={zone.color}>
         {/* header */}
         <div className="flex flex-wrap items-center gap-3 border-b border-white/10 p-4">
@@ -67,7 +67,7 @@ export default function ChallengePanel({
         </div>
 
         {/* body */}
-        <div className="max-h-[62vh] overflow-y-auto p-4">
+        <div className="max-h-[62dvh] overflow-y-auto p-4">
           <p className="mb-1 text-sm font-bold text-slate-200">{task.brief}</p>
           <p className="mb-4 rounded-xl border border-sky-400/25 bg-sky-500/10 p-3 text-xs leading-relaxed text-sky-100">
             🎯 {task.instruction}

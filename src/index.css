@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* dsk = layar lebar DAN cukup tinggi (laptop/tablet). HP portrait & landscape memakai tata letak ringkas. */
+@custom-variant dsk (@media (min-width: 640px) and (min-height: 481px));
+
 /* ============================================================
    Ekspedisi Literasi: Kota Informasi — global presentation
    ============================================================ */

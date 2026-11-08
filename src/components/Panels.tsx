@@ -11,7 +11,7 @@ import { printHTML } from "./print";
 
 export function Overlay({ children, wide }: { children: React.ReactNode; wide?: boolean }) {
   return (
-    <div className="pointer-events-auto absolute inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[#04070f]/85 p-2 backdrop-blur-md sm:items-center sm:p-4">
+    <div className="pointer-events-auto absolute inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[#04070f]/85 p-2 backdrop-blur-md dsk:items-center sm:p-4">
       <Panel className={cn("w-full overflow-hidden", wide ? "max-w-4xl" : "max-w-2xl")}>{children}</Panel>
     </div>
   );
